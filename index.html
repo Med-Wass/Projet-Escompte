@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escompte</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-image: url("finance.jpg");
+      background-size: cover;
+      background-position: center;
+      font-family: 'Arial', sans-serif;
+      color: #090404;
+    }
+
+    h2, h1 {
+      text-align: center;
+    }
+
+    form {
+      background: rgba(0, 0, 0, 0.8);
+      max-width: 500px;
+      width: 100%;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    label {
+      color: #ccc;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+    }
+
+    th, td {
+      color: white;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      background-color:black;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+
+   
+  </style>
+</head>
+<body>
+  <form id="calculationForm">
+    <label for="domicile">Domicile:</label>
+    <select id="domicile"  name="domicile">
+      <option value="" disabled selected style="display:none;">Oui/Non</option>
+      <option value="oui">Oui</option>
+      <option value="non">Non</option>
+    </select><br>
+
+    <label for="valeurNominal">Valeur Nominal:</label>
+    <input type="number" id="valeurNominal" name="valeurNominal" required><br>
+
+    <label for="tauxEscompte">Taux Escompte (%):</label>
+    <input type="number" placeholder="%" id="tauxEscompte" name="tauxEscompte" required><br>
+
+    <label for="dateOperation">Date d'Opération:</label>
+    <input type="date" id="dateOperation" name="dateOperation" required><br>
+
+    <label for="dateEcheance">Date d'Échéance:</label>
+    <input type="date" id="dateEcheance" name="dateEcheance" required><br>
+
+    <label for="nbrJoursBanque">Nombre de Jours de Banque:</label>
+    <input type="number" id="nbrJoursBanque" name="nbrJoursBanque" required><br>
+
+    <label for="tauxEnd">Taux d'End (%):</label>
+    <input type="number" id="tauxEnd" name="tauxEnd" required><br>
+
+    <label for="tva">TVA:</label>
+    <input type="number" placeholder="%" id="tva" name="tva" required><br>
+
+    
+    <div style="text-align: center;">
+      <button type="button" onclick="calculate()" style="display: block; margin: 0 auto; font-size: 12px; padding: 5px 10px; width: 175px;"><h3>Inscrire</h3></button>
+    </div>
+    <button type="button" onclick="sum()"style="display: block; margin: 0 auto; font-size: 12px; padding: 5px 10px; width: 175px;"><h3>Totale</h3></button>
+
+  </form>
+  <div class="panel" id="resultPanel">
+        <table id="resultsTable"><h2 id="tabletitle" hidden>Bordeaureux d'escompte</h2></table>
+  </div>
+  
+  <script>
+    var myListOfArrays = [];
+    var headerArray = ["Domicile","Valeur Nominal","Taux Escompte",
+                          "Date d'Opération","Date d'Échéance","nbrJoursEscompte","Nombre de Jours de Banque",
+                          "Taux Endossement","TVA","agios","valeur actuelle"];
+    var dataArray = [];
+    myListOfArrays.push(headerArray);
+    
+    
+    
+    function calculate() {
+      dataArray = [];
+      var domicile = document.getElementById("domicile").value;
+      var valeurNominal = parseFloat(document.getElementById("valeurNominal").value);
+      var tauxEscompte = parseFloat(document.getElementById("tauxEscompte").value);
+      var dateOperation = new Date(document.getElementById("dateOperation").value);
+      var dateEcheance = new Date(document.getElementById("dateEcheance").value);
+      var nbrJoursBanque = parseFloat(document.getElementById("nbrJoursBanque").value);
+      
+      var tauxEnd = parseFloat(document.getElementById("tauxEnd").value);
+      var tva = parseFloat(document.getElementById("tva").value);
+
+      var nbrJoursEscompte = (dateEcheance - dateOperation) / (1000 * 3600 * 24);
+      var ttva = domicile === "oui" ? (2 * tva / 100) : (6 * tva / 100);
+      var escompte = (((nbrJoursBanque + nbrJoursEscompte) * (tauxEnd + tauxEscompte)) * valeurNominal) / 36000;
+      var agios = domicile === "oui" ? (escompte + ttva + 2) : (escompte + ttva + 6);
+      dataArray[0]=domicile;
+      dataArray[1]=valeurNominal;
+      dataArray[2]=tauxEscompte;
+      dataArray[3]=dateOperation.toDateString();
+      dataArray[4]=dateEcheance.toDateString();
+      dataArray[5]=nbrJoursEscompte;
+      dataArray[6]=nbrJoursBanque;
+      dataArray[7]=tauxEnd;
+      dataArray[8]=tva+"%";
+      dataArray[9]=agios;
+      dataArray.push(valeurNominal-agios);
+      myListOfArrays.push(dataArray);
+      document.getElementById("domicile").value="";
+      document.getElementById("valeurNominal").value="";
+      document.getElementById("tauxEscompte").value="";
+      document.getElementById("dateEcheance").value="";
+      document.getElementById("nbrJoursBanque").value="";
+      document.getElementById("tauxEnd").value="";
+      document.getElementById("tva").value="";
+      document.getElementById("dateOperation").disabled=true;
+      console.log(""+myListOfArrays);
+      var resultsTable = document.getElementById("resultsTable");
+      var outputString="";
+      document.getElementById("tabletitle").hidden=false;
+      for (var i = 0; i < myListOfArrays.length; i++) {
+        outputString =outputString + `
+        <tr>
+          <td>${myListOfArrays[i][0]}</td>
+          <td>${myListOfArrays[i][1]}</td>
+          <td>${myListOfArrays[i][2]}</td>
+          <td>${myListOfArrays[i][3]}</td>
+          <td>${myListOfArrays[i][4]}</td>
+          <td>${myListOfArrays[i][5]}</td>
+          <td>${myListOfArrays[i][6]}</td>
+          <td>${myListOfArrays[i][7]}</td>
+          <td>${myListOfArrays[i][8]}</td>
+          <td>${myListOfArrays[i][9]}</td>
+          <td>${myListOfArrays[i][10]}</td>
+          <td><input type="checkbox" id="checkbox${i}"  unchecked onclick="handleCheckboxChangeEvent()"></td>
+        </tr>
+      `;
+      }
+      resultsTable.innerHTML=outputString;
+    }
+    function handleCheckboxChangeEvent() {
+      // Get the checkbox
+      var checkBox = document.getElementById("checkbox1");
+      // If the checkbox is checked, display the output text
+      if (checkBox.checked == true){
+        console.log("checkbox is checked........");
+      } else {
+        console.log("checkbox is unchecked........");
+      }
+    }
+    function sum(){
+      var resultsTable = document.getElementById("resultsTable");
+
+      // Sommes initiales
+      var sumValeurNominal = 0;
+      var sumAgios = 0;
+      var sumValeurActuelle = 0;
+      var sumTauxEscompte = 0;
+      var lengthh = 0;
+
+      // Parcourir les lignes du tableau à partir de la deuxième ligne (la première est l'en-tête)
+      for (var i = 1; i < resultsTable.rows.length; i++) {
+        // Vérifier si la case à cocher est cochée
+        var isChecckboxChecked = document.getElementById(`checkbox${i}`);
+        console.log(""+isChecckboxChecked.checked);
+        if(isChecckboxChecked.checked){
+          sumValeurNominal += parseFloat(resultsTable.rows[i].cells[1].innerText);
+          sumTauxEscompte += parseFloat(resultsTable.rows[i].cells[2].innerText);
+          sumAgios += parseFloat(resultsTable.rows[i].cells[9].innerText);
+          sumValeurActuelle += parseFloat(resultsTable.rows[i].cells[10].innerText);
+          lengthh += 1;}
+        
+      }
+
+      // Ajouter une nouvelle ligne pour afficher les sommes
+      var sumRow = resultsTable.insertRow();
+
+      // La première cellule de la nouvelle ligne contient le texte "Somme"
+      var sumCell = sumRow.insertCell(0);
+      sumCell.innerText = "Totale";
+
+      for (var j = 1; j < resultsTable.rows[0].cells.length; j++) {
+        var sumColumnCell = sumRow.insertCell(j);
+
+        if (j === 1 || j === 9 || j === 10 || j === 2) {
+          // Afficher la somme des colonnes "Valeur Nominal", "Agios" et "Valeur Actuelle"
+          sumColumnCell.innerText = (j === 1) ? sumValeurNominal : (j === 9) ? sumAgios : (j === 10) ? sumValeurActuelle : sumTauxEscompte / lengthh;
+        } else {
+          // Afficher null pour les autres colonnes
+          sumColumnCell.innerText = "";
+        }
+      }
+  
+    }
+  </script>
+
+</body>
+</html>
